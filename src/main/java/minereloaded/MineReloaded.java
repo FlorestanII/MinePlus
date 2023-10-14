@@ -6,7 +6,6 @@ package minereloaded;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,7 +34,7 @@ public class MineReloaded extends JavaPlugin {
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 				if (sender instanceof Player player) {
 					if (args.length == 1) {
-						WalkingBlockEntity entity = new WalkingBlockEntity(player.getLocation(), Material.matchMaterial(args[0]));
+						WalkingBlockEntity entity = new WalkingBlockEntity(player.getLocation(), OreTypes.valueOf(args[0].toUpperCase()));
 						entities.add(entity);
 						return true;
 					}

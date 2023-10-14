@@ -3,10 +3,16 @@
  */
 package minereloaded.entities.walkingblockentity;
 
+import java.util.Random;
+
 import javax.annotation.Nullable;
 
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -31,6 +37,9 @@ import net.minecraft.world.entity.player.Player;
  * 
  */
 public class WalkingBlockBase extends Turtle {
+
+	private static final Random r = new Random();
+
 	private WalkingBlockEntity entity;
 
 	private AttributeMap attributes;
@@ -58,6 +67,8 @@ public class WalkingBlockBase extends Turtle {
 		this.persistentInvisibility = true;
 		this.updateInvisibilityStatus();
 
+		this.drops.clear();
+
 		// Attributes
 		// TODO
 		this.attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(1);
@@ -71,6 +82,52 @@ public class WalkingBlockBase extends Turtle {
 
 	public void setLocation(Location loc) {
 		this.setPos(loc.getX(), loc.getY(), loc.getZ());
+	}
+
+	@Override
+	public boolean hurt(DamageSource damagesource, float f) {
+		Entity e = damagesource.getEntity().getBukkitEntity();
+
+		if (e instanceof org.bukkit.entity.Player damager) {
+			ItemStack mainHand = damager.getInventory().getItemInMainHand();
+
+			if (mainHand.getType().toString().contains("PICKAXE")) {
+				// TODO consider efficiency
+
+				level().getWorld().spawnParticle(Particle.BLOCK_CRACK, this.xo, this.yo + 0.5f, this.zo, 25, 0.2f, 0.2f, 0.2f,
+						this.entity.getMaterial().createBlockData());
+
+				return super.hurt(damagesource, f);
+			}
+		}
+
+		return false;
+	}
+
+	@Override
+	protected void dropFromLootTable(DamageSource damagesource, boolean flag) {
+		// No normal drops
+	}
+
+	@Override
+	protected void dropCustomDeathLoot(DamageSource damagesource, int i, boolean flag) {
+		Entity e = damagesource.getEntity().getBukkitEntity();
+
+		if (e instanceof org.bukkit.entity.Player damager) {
+			ItemStack mainHand = damager.getInventory().getItemInMainHand();
+
+			if (mainHand.getEnchantmentLevel(Enchantment.SILK_TOUCH) > 0) {
+				this.drops.add(new ItemStack(this.entity.getMaterial()));
+			} else {
+				int fortune = mainHand.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
+				int amount = this.entity.getType().getRandomBaseDropCount();
+
+				amount += amount * r.nextInt(fortune + 1);
+
+				this.drops.add(new ItemStack(this.entity.getType().getDrop(), amount));
+			}
+
+		}
 	}
 
 	@Override
@@ -109,6 +166,21 @@ public class WalkingBlockBase extends Turtle {
 	@Override
 	public boolean fireImmune() {
 		return true;
+	}
+
+	@Override
+	protected boolean shouldDropLoot() {
+		Entity e = this.getLastDamageSource().getEntity().getBukkitEntity();
+
+		if (e instanceof org.bukkit.entity.Player damager) {
+			ItemStack mainHand = damager.getInventory().getItemInMainHand();
+
+			if (mainHand.getType().toString().contains("PICKAXE")) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override

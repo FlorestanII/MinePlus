@@ -4,7 +4,6 @@
 package minereloaded.entities.walkingblockentity;
 
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftMagicNumbers;
 
@@ -88,9 +87,6 @@ public class WalkingBlockPassenger extends FallingBlockEntity {
 	@Override
 	public boolean hurt(DamageSource damagesource, float f) {
 		if (damagesource.getDirectEntity()instanceof ServerPlayer player) {
-			level().getWorld().spawnParticle(Particle.BLOCK_CRACK, this.xo, this.yo + 0.5f, this.zo, 25, 0.2f, 0.2f, 0.2f,
-					this.entity.getMaterial().createBlockData());
-
 			return this.entity.getBase().hurt(damagesource, f);
 		}
 
