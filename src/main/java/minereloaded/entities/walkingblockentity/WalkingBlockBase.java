@@ -170,8 +170,17 @@ public class WalkingBlockBase extends Turtle {
 
 	@Override
 	protected boolean shouldDropLoot() {
-		// TODO only if killed with pickaxe
-		return true;
+		Entity e = this.getLastDamageSource().getEntity().getBukkitEntity();
+
+		if (e instanceof org.bukkit.entity.Player damager) {
+			ItemStack mainHand = damager.getInventory().getItemInMainHand();
+
+			if (mainHand.getType().toString().contains("PICKAXE")) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override
