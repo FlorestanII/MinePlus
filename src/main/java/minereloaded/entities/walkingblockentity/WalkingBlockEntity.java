@@ -6,6 +6,7 @@ package minereloaded.entities.walkingblockentity;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
+import minereloaded.OreTypes;
 import net.minecraft.world.entity.Entity.RemovalReason;
 
 /**
@@ -17,7 +18,7 @@ import net.minecraft.world.entity.Entity.RemovalReason;
  */
 public class WalkingBlockEntity {
 
-	private final Material material;
+	private final OreTypes type;
 
 	private WalkingBlockBase base;
 	private WalkingBlockPassenger passenger;
@@ -27,9 +28,9 @@ public class WalkingBlockEntity {
 	 * 
 	 * @param loc the location to spawn the entity at
 	 */
-	public WalkingBlockEntity(Location loc, Material material) {
-		this.material = material;
-		
+	public WalkingBlockEntity(Location loc, OreTypes type) {
+		this.type = type;
+
 		this.base = new WalkingBlockBase(this, loc);
 		this.passenger = new WalkingBlockPassenger(this, loc);
 
@@ -47,10 +48,14 @@ public class WalkingBlockEntity {
 		}
 	}
 
-	public Material getMaterial() {
-		return this.material;
+	public OreTypes getType() {
+		return this.type;
 	}
-	
+
+	public Material getMaterial() {
+		return this.type.getType();
+	}
+
 	public WalkingBlockBase getBase() {
 		return this.base;
 	}
