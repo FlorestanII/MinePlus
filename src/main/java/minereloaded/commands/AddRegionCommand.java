@@ -49,6 +49,12 @@ public class AddRegionCommand implements CommandExecutor {
 				if (args.length == 1) {
 					Region region = new Region(this.firstLocations.get(player), player.getLocation());
 
+					try {
+						region.setCapacity(Integer.parseInt(args[0]));
+					} catch (NumberFormatException e) {
+						return false;
+					}
+
 					for (Region r : this.plugin.getRegions()) {
 						if (r.getWorld().getUID().equals(region.getWorld().getUID()) && region.getBoundingBox().overlaps(r.getBoundingBox())) {
 							sender.sendMessage(MineReloaded.PLUGIN_PREFIX + ChatColor.RED + "The new region would overlap an existing one.");
