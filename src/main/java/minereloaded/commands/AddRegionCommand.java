@@ -46,19 +46,23 @@ public class AddRegionCommand implements CommandExecutor {
 							+ "Set the first corner of region. Execute same command again in the second corner to create the new region.");
 				}
 			} else {
-				Region region = new Region(this.firstLocations.get(player), player.getLocation());
+				if (args.length == 1) {
+					Region region = new Region(this.firstLocations.get(player), player.getLocation());
 
-				for (Region r : this.plugin.getRegions()) {
-					if (r.getWorld().getUID().equals(region.getWorld().getUID()) && region.getBoundingBox().overlaps(r.getBoundingBox())) {
-						sender.sendMessage(MineReloaded.PLUGIN_PREFIX + ChatColor.RED + "The new region would overlap an existing one.");
-						return true;
+					for (Region r : this.plugin.getRegions()) {
+						if (r.getWorld().getUID().equals(region.getWorld().getUID()) && region.getBoundingBox().overlaps(r.getBoundingBox())) {
+							sender.sendMessage(MineReloaded.PLUGIN_PREFIX + ChatColor.RED + "The new region would overlap an existing one.");
+							return true;
+						}
 					}
+
+					this.firstLocations.remove(player);
+
+					this.plugin.addRegion(region);
+					sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "New region was created");
+				} else {
+					return false;
 				}
-
-				this.firstLocations.remove(player);
-
-				this.plugin.addRegion(region);
-				sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "New region was created");
 			}
 
 		} else {

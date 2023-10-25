@@ -29,6 +29,8 @@ public class Region {
 	private World world;
 	private BoundingBox boundingBox;
 
+	private int capacity;
+
 	private List<Vector> spawnpoints = new ArrayList<>();
 
 	public Region(Location loc1, Location loc2) {
@@ -63,6 +65,14 @@ public class Region {
 		this.spawnpoints.add(spawnpoint);
 	}
 
+	public void setCapacity(int capacity) {
+		this.capacity = capacity;
+	}
+
+	public int getCapacity() {
+		return this.capacity;
+	}
+
 	public boolean saveToConfig(ConfigurationSection regionSection) {
 		if (regionSection == null) {
 			return false;
@@ -83,6 +93,8 @@ public class Region {
 		config.set("maxX", this.boundingBox.getMaxX());
 		config.set("maxY", this.boundingBox.getMaxY());
 		config.set("maxZ", this.boundingBox.getMaxZ());
+
+		config.set("capacity", this.capacity);
 
 		List<Map<?, ?>> spawnlist = new ArrayList<>();
 
@@ -106,8 +118,8 @@ public class Region {
 
 		String id = config.getName();
 
-		if (!config.isSet("minX") || !config.isSet("minY") || !config.isSet("minZ") || !config.isSet("maxX") || !config.isSet("maxY")
-				|| !config.isSet("maxZ")) {
+		if (!config.isSet("minX") || !config.isSet("minY") || !config.isSet("minZ") || !config.isSet("maxX") || !config.isSet("maxY") || !config.isSet("maxZ")
+				|| !config.isSet("capacity")) {
 			return null;
 		}
 
@@ -118,6 +130,8 @@ public class Region {
 		double maxY = config.getDouble("maxY");
 		double maxZ = config.getDouble("maxZ");
 		BoundingBox box = new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
+
+		int capacity = config.getInt("capacity");
 
 		if (!config.isSet("world")) {
 			return null;
@@ -132,6 +146,7 @@ public class Region {
 		}
 
 		Region region = new Region(UUID.fromString(id), world, box);
+		region.setCapacity(capacity);
 
 		List<Map<?, ?>> spawnlist = config.getMapList("spawnpoints");
 
