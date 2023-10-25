@@ -8,6 +8,10 @@ api-version: '1.20'
 main: minereloaded.MineReloaded
 
 commands:
+  minereloaded:
+    description: "Enabled/disables/reloads this plugin."
+    usage: "/minereloaded <enable|disable|reload>"
+
   testspawn:
     description: "This is a test command to spawn a custom entity TODO remove command"
     usage: "/testspawn"
