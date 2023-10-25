@@ -3,10 +3,14 @@
  */
 package minereloaded.commands;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 
 import minereloaded.MineReloaded;
 
@@ -17,7 +21,7 @@ import minereloaded.MineReloaded;
  * @author Johannes Pollitt
  * 
  */
-public class MineReloadedCommand implements CommandExecutor {
+public class MineReloadedCommand implements CommandExecutor, TabCompleter {
 
 	private final MineReloaded plugin;
 
@@ -30,13 +34,15 @@ public class MineReloadedCommand implements CommandExecutor {
 		if (args.length == 0) {
 			sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "The MineReloaded plugin is currently " + ChatColor.GOLD
 					+ (this.plugin.isActive() ? "Enabled" : "Disabled") + ChatColor.GRAY + "!");
+			return true;
 		} else if (args.length > 1) {
 			return false;
 		}
 
 		switch (args[0]) {
 		case "enable": {
-			if (this.plugin.activate()) {
+			if (!this.plugin.isActive()) {
+				this.plugin.setActive(true);
 				sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "Plugin enabled.");
 			} else {
 				sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "Plugin could not be enabled! Is it already enabled?");
@@ -44,7 +50,8 @@ public class MineReloadedCommand implements CommandExecutor {
 			break;
 		}
 		case "disable": {
-			if (this.plugin.deactivate()) {
+			if (this.plugin.isActive()) {
+				this.plugin.setActive(false);
 				sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "Plugin disabled.");
 			} else {
 				sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "Plugin could not be disabled! Is it already disabled?");
@@ -53,12 +60,8 @@ public class MineReloadedCommand implements CommandExecutor {
 		}
 		case "reload": {
 			this.plugin.deactivate();
-
-			if (this.plugin.activate()) {
-				sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "Plugin reloaded.");
-			} else {
-				sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "Reloading of the plugin failed!");
-			}
+			this.plugin.activate();
+			sender.sendMessage(MineReloaded.PLUGIN_PREFIX + "Plugin reloaded.");
 			break;
 		}
 		default:
@@ -66,6 +69,15 @@ public class MineReloadedCommand implements CommandExecutor {
 		}
 
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		if (args.length != 1) {
+			return null;
+		}
+
+		return Arrays.asList("enable", "disable", "reload").stream().filter(s -> s.startsWith(args[0])).toList();
 	}
 
 }

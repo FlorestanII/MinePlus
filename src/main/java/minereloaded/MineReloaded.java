@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import minereloaded.commands.AddRegionCommand;
 import minereloaded.commands.MineReloadedCommand;
 import minereloaded.entities.walkingblockentity.WalkingBlockEntity;
 
@@ -27,21 +30,36 @@ public class MineReloaded extends JavaPlugin {
 
 	public static final String PLUGIN_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "MineReloaded" + ChatColor.GRAY + "] ";
 
-	private List<WalkingBlockEntity> entities = new ArrayList<>(32);
+	private List<Region> regions = new ArrayList<>();
+
+	private List<WalkingBlockEntity> entities = new ArrayList<>();
+
+	@Override
+	public void onLoad() {
+		super.onLoad();
+		saveDefaultConfig();
+	}
 
 	@Override
 	public void onEnable() {
 		super.onEnable();
 
-		getCommand("minereloaded").setExecutor(new MineReloadedCommand(this));
+		MineReloadedCommand mainCommand = new MineReloadedCommand(this);
+
+		getCommand("minereloaded").setExecutor(mainCommand);
+		getCommand("minereloaded").setTabCompleter(mainCommand);
+
+		getCommand("addregion").setExecutor(new AddRegionCommand(this));
 
 		getCommand("testspawn").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 				if (sender instanceof Player player) {
 					if (args.length == 1) {
-						WalkingBlockEntity entity = new WalkingBlockEntity(player.getLocation(), OreTypes.valueOf(args[0].toUpperCase()));
-						entities.add(entity);
+						// TODO
+						// WalkingBlockEntity entity = new WalkingBlockEntity(player.getLocation(),
+						// OreTypes.valueOf(args[0].toUpperCase()));
+						// entities.add(entity);
 						return true;
 					}
 
@@ -49,6 +67,10 @@ public class MineReloaded extends JavaPlugin {
 				return false;
 			}
 		});
+
+		if (isActive()) {
+			activate();
+		}
 	}
 
 	@Override
@@ -56,6 +78,10 @@ public class MineReloaded extends JavaPlugin {
 		// TODO add custom events -> listener -> management
 		for (WalkingBlockEntity entity : entities) {
 			entity.remove();
+		}
+
+		if (isActive()) {
+			deactivate();
 		}
 
 		super.onDisable();
@@ -70,20 +96,54 @@ public class MineReloaded extends JavaPlugin {
 		this.saveConfig();
 	}
 
-	public boolean activate() {
-		if (isActive()) {
-			return false;
-		}
+	public void activate() {
+		this.regions.clear();
+		ConfigurationSection section = this.getConfig().getConfigurationSection("regions");
 
-		return true;
+		if (section != null) {
+			for (String key : section.getKeys(false)) {
+				Region region = Region.loadFromConfig(section.getConfigurationSection(key));
+				if (region != null) {
+					this.regions.add(region);
+				} else {
+					getLogger().warning("Failed to load region " + key);
+				}
+			}
+		}
 	}
 
-	public boolean deactivate() {
-		if (!isActive()) {
-			return false;
+	public void deactivate() {
+		// TODO
+	}
+
+	public List<Region> getRegions() {
+		return this.regions;
+	}
+
+	public Region getCurrentRegion(Location location) {
+		for (Region region : regions) {
+			if (region.getWorld().getUID().equals(location.getWorld().getUID())
+					&& region.getBoundingBox().contains(location.getX(), location.getY(), location.getZ())) {
+				return region;
+			}
 		}
 
-		return true;
+		return null;
+	}
+
+	public void addRegion(Region region) {
+		this.regions.add(region);
+
+		if (this.getConfig().getConfigurationSection("regions") == null) {
+			this.getConfig().createSection("regions");
+		}
+
+		region.saveToConfig(this.getConfig().getConfigurationSection("regions"));
+		this.saveConfig();
+	}
+
+	public static MineReloaded getPlugin() {
+		return getPlugin(MineReloaded.class);
 	}
 
 }

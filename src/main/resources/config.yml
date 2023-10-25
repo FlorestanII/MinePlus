@@ -1,1 +1,7 @@
 enabled: true
+types:
+  - name: "COAL"
+    material: "COAL_ORE"
+    drop: "COAL"
+
+regions:
