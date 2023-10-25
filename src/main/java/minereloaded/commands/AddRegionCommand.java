@@ -17,10 +17,10 @@ import minereloaded.MineReloaded;
 import minereloaded.Region;
 
 /**
- * Copyright (C) 2023 Johannes Pollitt. <br />
+ * Copyright (C) 2023 FlorestanII. <br />
  * All rights reserved.
  * 
- * @author Johannes Pollitt
+ * @author FlorestanII
  * 
  */
 public class AddRegionCommand implements CommandExecutor {

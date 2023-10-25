@@ -14,8 +14,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
 import minereloaded.commands.AddRegionCommand;
+import minereloaded.commands.AddSpawnpointCommand;
 import minereloaded.commands.MineReloadedCommand;
 import minereloaded.entities.walkingblockentity.WalkingBlockEntity;
 
@@ -43,13 +45,6 @@ public class MineReloaded extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		super.onEnable();
-
-		MineReloadedCommand mainCommand = new MineReloadedCommand(this);
-
-		getCommand("minereloaded").setExecutor(mainCommand);
-		getCommand("minereloaded").setTabCompleter(mainCommand);
-
-		getCommand("addregion").setExecutor(new AddRegionCommand(this));
 
 		getCommand("testspawn").setExecutor(new CommandExecutor() {
 			@Override
@@ -97,6 +92,14 @@ public class MineReloaded extends JavaPlugin {
 	}
 
 	public void activate() {
+		MineReloadedCommand mainCommand = new MineReloadedCommand(this);
+
+		getCommand("minereloaded").setExecutor(mainCommand);
+		getCommand("minereloaded").setTabCompleter(mainCommand);
+
+		getCommand("addregion").setExecutor(new AddRegionCommand(this));
+		getCommand("addspawnpoint").setExecutor(new AddSpawnpointCommand(this));
+
 		this.regions.clear();
 		ConfigurationSection section = this.getConfig().getConfigurationSection("regions");
 
@@ -140,6 +143,20 @@ public class MineReloaded extends JavaPlugin {
 
 		region.saveToConfig(this.getConfig().getConfigurationSection("regions"));
 		this.saveConfig();
+	}
+
+	public boolean addSpawnpointToRegion(Location spawnpoint) {
+		Region region = getCurrentRegion(spawnpoint);
+
+		if (region != null) {
+			region.addSpawnpoint(new Vector(spawnpoint.getX(), spawnpoint.getY(), spawnpoint.getZ()));
+			region.saveToConfig(getConfig().getConfigurationSection("regions"));
+			saveConfig();
+
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public static MineReloaded getPlugin() {

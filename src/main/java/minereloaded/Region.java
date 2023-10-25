@@ -3,6 +3,10 @@
  */
 package minereloaded;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -10,12 +14,13 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
 /**
- * Copyright (C) 2023 Johannes Pollitt. <br />
+ * Copyright (C) 2023 FlorestanII. <br />
  * All rights reserved.
  * 
- * @author Johannes Pollitt
+ * @author FlorestanII
  * 
  */
 public class Region {
@@ -23,6 +28,8 @@ public class Region {
 	private final UUID id;
 	private World world;
 	private BoundingBox boundingBox;
+
+	private List<Vector> spawnpoints = new ArrayList<>();
 
 	public Region(Location loc1, Location loc2) {
 		this.id = UUID.randomUUID();
@@ -52,6 +59,10 @@ public class Region {
 		return this.boundingBox;
 	}
 
+	public void addSpawnpoint(Vector spawnpoint) {
+		this.spawnpoints.add(spawnpoint);
+	}
+
 	public boolean saveToConfig(ConfigurationSection regionSection) {
 		if (regionSection == null) {
 			return false;
@@ -72,6 +83,18 @@ public class Region {
 		config.set("maxX", this.boundingBox.getMaxX());
 		config.set("maxY", this.boundingBox.getMaxY());
 		config.set("maxZ", this.boundingBox.getMaxZ());
+
+		List<Map<?, ?>> spawnlist = new ArrayList<>();
+
+		for (Vector spawn : this.spawnpoints) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("x", spawn.getX());
+			map.put("y", spawn.getY());
+			map.put("z", spawn.getZ());
+			spawnlist.add(map);
+		}
+
+		config.set("spawnpoints", spawnlist);
 
 		return true;
 	}
@@ -108,7 +131,15 @@ public class Region {
 			return null;
 		}
 
-		return new Region(UUID.fromString(id), world, box);
+		Region region = new Region(UUID.fromString(id), world, box);
+
+		List<Map<?, ?>> spawnlist = config.getMapList("spawnpoints");
+
+		for (Map<?, ?> map : spawnlist) {
+			region.spawnpoints.add(new Vector((double) map.get("x"), (double) map.get("y"), (double) map.get("z")));
+		}
+
+		return region;
 	}
 
 }

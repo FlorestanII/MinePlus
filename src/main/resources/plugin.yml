@@ -17,7 +17,14 @@ commands:
     description: "Adds a new spawning region for ores. Execute twice in opposing corners."
     usage: "/addregion <max spawning capacity>"
     permission: "minereloaded.admin"
+
 #TODO: info/summary & remove & add spawnpoint
+
+  addspawnpoint:
+    description: "Adds a new spawnpoint to the region you are currently standing in."
+    usage: "/addspawnpoint"
+    permission: "minereloaded.admin"
+
   testspawn:
     description: "This is a test command to spawn a custom entity TODO remove command"
     usage: "/testspawn"
